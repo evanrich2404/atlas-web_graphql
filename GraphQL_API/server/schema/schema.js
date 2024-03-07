@@ -52,10 +52,11 @@ const TaskType = new GraphQLObjectType({
     description: { type: GraphQLString },
     projectId: { type: GraphQLID },
     project: {
+      // eslint-disable-next-line no-use-before-define
       type: ProjectType,
-      resolve(parent, args) {
-        return projects.find(project => project.id === parent.projectId);
-      }
+      resolve(parent) {
+        return projects.find((project) => project.id === parent.projectId);
+      },
     },
   }),
 });
@@ -70,9 +71,9 @@ const ProjectType = new GraphQLObjectType({
     description: { type: GraphQLString },
     tasks: {
       type: new GraphQLList(TaskType),
-      resolve(parent, args) {
-        return tasks.filter(task => task.projectId === parent.id);
-      }
+      resolve(parent) {
+        return tasks.filter((task) => task.projectId === parent.id);
+      },
     },
   }),
 });
