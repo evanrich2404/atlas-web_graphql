@@ -5,17 +5,20 @@ const {
   GraphQLInt,
   GraphQLSchema,
   GraphQLID,
+  GraphQLList,
 } = require('graphql');
 
 // test data for TaskType
 const tasks = [
   {
+    projectId: '1',
     id: '1',
     title: 'Create your first webpage',
     weight: 1,
     description: 'Create your first HTML file 0-index.html with: - Add the doctype on the first line (without any comment) - After the doctype, open and close a html tag Open your file in your browser (the page should be blank)',
   },
   {
+    projectId: '1',
     id: '2',
     title: 'Structure your webpage',
     weight: 1,
@@ -42,29 +45,42 @@ const projects = [
 // GraphQLObjectType for processing task related data
 const TaskType = new GraphQLObjectType({
   name: 'Task',
-  fields: {
+  fields: () => ({
     id: { type: GraphQLID },
     title: { type: GraphQLString },
     weight: { type: GraphQLInt },
     description: { type: GraphQLString },
-  },
+    projectId: { type: GraphQLID },
+    project: {
+      type: ProjectType,
+      resolve(parent, args) {
+        return projects.find(project => project.id === parent.projectId);
+      }
+    },
+  }),
 });
 
 // GraphQLObjectType for processing project related data
 const ProjectType = new GraphQLObjectType({
   name: 'Project',
-  fields: {
+  fields: () => ({
     id: { type: GraphQLID },
     title: { type: GraphQLString },
     weight: { type: GraphQLInt },
     description: { type: GraphQLString },
-  },
+    tasks: {
+      type: new GraphQLList(TaskType),
+      resolve(parent, args) {
+        return tasks.filter(task => task.projectId === parent.id);
+      }
+    },
+  }),
 });
 
 // GraphQLObjectType that is the root of the querying
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
-  fields: {
+  fields: () => ({
     task: {
       type: TaskType,
       args: { id: { type: GraphQLID } },
@@ -80,7 +96,19 @@ const RootQuery = new GraphQLObjectType({
         return projects.find((project) => project.id === args.id);
       },
     },
-  },
+    tasks: {
+      type: new GraphQLList(TaskType),
+      resolve() {
+        return tasks;
+      },
+    },
+    projects: {
+      type: new GraphQLList(ProjectType),
+      resolve() {
+        return projects;
+      },
+    },
+  }),
 });
 
 const schema = new GraphQLSchema({ query: RootQuery });
