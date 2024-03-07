@@ -16,3 +16,7 @@ app.listen(4000, () => {
 mongoose.connection.once('open', () => {
   console.log('connected to database');
 });
+
+mongoose.connection.on('error', (err) => {
+  console.log('Connection error:', err);
+});
