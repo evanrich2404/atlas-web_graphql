@@ -1,3 +1,4 @@
+const cors = require('cors');
 const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const mongoose = require('mongoose');
@@ -9,6 +10,8 @@ const password = '6kjfg0BTvM8NoN3H'; // Remember to URL-encode if necessary
 const dbName = 'Cluster0'; // The database you want to connect to in Atlas
 
 const app = express();
+
+app.use(cors());
 
 // MongoDB Atlas connection string
 const mongoDBAtlasConnection = `mongodb+srv://${username}:${password}@cluster0.7h91772.mongodb.net/${dbName}`;
