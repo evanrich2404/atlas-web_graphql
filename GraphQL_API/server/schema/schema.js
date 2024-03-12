@@ -6,7 +6,12 @@ const {
   GraphQLSchema,
   GraphQLID,
   GraphQLList,
+  GraphQLNonNull,
 } = require('graphql');
+
+// schema for projects and tasks:
+const Project = require('../models/project');
+const Task = require('../models/task');
 
 // test data for TaskType
 const tasks = [
@@ -78,6 +83,46 @@ const ProjectType = new GraphQLObjectType({
   }),
 });
 
+const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    addProject: {
+      type: ProjectType,
+      args: {
+        title: { type: new GraphQLNonNull(GraphQLString) },
+        weight: { type: new GraphQLNonNull(GraphQLInt) },
+        description: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parent, args) {
+        const project = new Project({
+          title: args.title,
+          weight: args.weight,
+          description: args.description,
+        });
+        return project.save();
+      },
+    },
+    addTask: {
+      type: TaskType,
+      args: {
+        projectId: { type: new GraphQLNonNull(GraphQLID) },
+        title: { type: new GraphQLNonNull(GraphQLString) },
+        weight: { type: new GraphQLNonNull(GraphQLInt) },
+        description: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parent, args) {
+        const task = new Task({
+          projectId: args.projectId,
+          title: args.title,
+          weight: args.weight,
+          description: args.description,
+        });
+        return task.save();
+      },
+    },
+  },
+});
+
 // GraphQLObjectType that is the root of the querying
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
@@ -112,5 +157,9 @@ const RootQuery = new GraphQLObjectType({
   }),
 });
 
-const schema = new GraphQLSchema({ query: RootQuery });
+const schema = new GraphQLSchema({
+  query: RootQuery,
+  mutation: Mutation,
+});
+
 module.exports = { schema };
