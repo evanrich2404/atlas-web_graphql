@@ -26,7 +26,7 @@ const TaskType = new GraphQLObjectType({
       // eslint-disable-next-line no-use-before-define
       type: ProjectType,
       resolve(parent) {
-        return Project.find((project) => project.id === parent.projectId);
+        return Project.findById(parent.projectId);
       },
     },
   }),
@@ -43,7 +43,8 @@ const ProjectType = new GraphQLObjectType({
     tasks: {
       type: new GraphQLList(TaskType),
       resolve(parent) {
-        return Task.filter((task) => task.projectId === parent.id);
+        // Use Task model to find all tasks with the projectId equal to parent.id
+        return Task.find({ projectId: parent.id });
       },
     },
   }),
@@ -98,26 +99,26 @@ const RootQuery = new GraphQLObjectType({
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
         // Use the args.id to find and return the task from the tasks array
-        return Task.find((task) => task.id === args.id);
+        return Task.findById(args.id);
       },
     },
     project: {
       type: ProjectType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
-        return Project.find((project) => project.id === args.id);
+        return Project.findById(args.id);
       },
     },
     tasks: {
       type: new GraphQLList(TaskType),
       resolve() {
-        return Task;
+        return Task.find({});
       },
     },
     projects: {
       type: new GraphQLList(ProjectType),
       resolve() {
-        return Project;
+        return Project.find({});
       },
     },
   }),
